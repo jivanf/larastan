@@ -414,7 +414,6 @@ services:
             databaseMigrationPath: %databaseMigrationsPath%
             disableMigrationScan: %disableMigrationScan%
             parser: @currentPhpVersionSimpleDirectParser
-            reflectionProvider: @reflectionProvider
 
     -
         class: Larastan\Larastan\Properties\SquashedMigrationHelper
@@ -424,6 +423,9 @@ services:
 
     -
         class: Larastan\Larastan\Properties\ModelCastHelper
+
+    -
+        class: Larastan\Larastan\Properties\ModelDatabaseHelper
 
     -
         class: Larastan\Larastan\Properties\ModelPropertyHelper
