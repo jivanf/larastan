@@ -74,7 +74,7 @@ final class RelationFindExtension implements DynamicMethodReturnTypeExtension
 
         if (in_array(Collection::class, $returnType->getReferencedClasses(), true)) {
             if ($argType->isIterable()->yes()) {
-                return $this->collectionHelper->determineCollectionClass($modelName);
+                return $this->collectionHelper->determineCollectionType($modelName);
             }
 
             $returnType = TypeCombinator::remove($returnType, new ObjectType(Collection::class));
