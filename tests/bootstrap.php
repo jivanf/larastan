@@ -6,6 +6,7 @@ use Illuminate\Auth\RequestGuard;
 use Illuminate\Auth\SessionGuard;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
@@ -31,6 +32,9 @@ RequestGuard::macro('requestGuardMacro', static function (): int {
 
 Str::macro('trimMacro', 'trim');
 Str::macro('asciiAliasMacro', Str::class . '::ascii');
+
+
+Cache::macro('rememberIf', static fn ($cond, $key, $ttl, $callback): mixed => $cond ? Cache::remember($key, $ttl, $callback) : $callback());
 
 class CustomCollectionMacro
 {

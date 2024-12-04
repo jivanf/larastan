@@ -37,6 +37,6 @@ class MethodsClassReflectionExtensionTest extends TypeInferenceTestCase
     /** @return string[] */
     public static function getAdditionalConfigFiles(): array
     {
-        return [__DIR__ . '/../../extension.neon'];
+        return [__DIR__ . '/../phpstan-tests.neon'];
     }
 }
