@@ -112,7 +112,13 @@ class BuilderHelper
 
         $classReflection = $this->reflectionProvider->getClass(QueryBuilder::class);
 
-        $methodReflection = $classReflection->getNativeMethod('dynamicWhere');
+        if (! $classReflection->hasNativeMethod('dynamicWhere')) {
+            throw new ShouldNotHappenException(<<<'TXT'
+                Method 'dynamicWhere' not found in QueryBuilder reflection.
+                This is known to happen when Larastan scans the stubs from the
+                IDE-Helper package.
+                TXT);
+        }
 
         return new EloquentBuilderMethodReflection(
             $methodName,
