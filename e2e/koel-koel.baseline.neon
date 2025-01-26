@@ -21,6 +21,11 @@ parameters:
 			path: ../../e2e/app/Providers/MacroProvider.php
 
 		-
+			message: "#^Access to an undefined property Mockery\\\\LegacyMockInterface\\:\\:\\$plainTextToken\\.$#"
+			count: 1
+			path: ../../e2e/tests/Feature/LastfmTest.php
+
+		-
 			message: "#^Parameter \\#3 \\$fail of method App\\\\Rules\\\\ValidSmartPlaylistRulePayload\\:\\:validate\\(\\) expects Closure\\(string\\)\\: Illuminate\\\\Translation\\\\PotentiallyTranslatedString, Closure\\(mixed\\)\\: string given\\.$#"
 			count: 1
 			path: ../../e2e/tests/Unit/Rules/ValidSmartPlaylistRulePayloadTest.php
