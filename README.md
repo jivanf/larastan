@@ -26,12 +26,15 @@ This fork is intended to provide the community with immediate access to these en
 
 This fork includes the following changes and enhancements:
 
+- [fix: check for dynamicWhere method existence](https://github.com/larastan/larastan/pull/2175)
+- [fix: macros on Cache facade](https://github.com/larastan/larastan/pull/2143)
+- [fix: model relation properties](https://github.com/larastan/larastan/pull/2138)
+- [fix: handle collection intersection types](https://github.com/larastan/larastan/pull/2058)
 - [feat: support dynamic relation closures](https://github.com/larastan/larastan/pull/2048)
 - [feat: add support for config array shapes](https://github.com/larastan/larastan/pull/2004)
 - [feat: support multiple database connections](https://github.com/larastan/larastan/pull/1879)
 - [feat: support wildcards in migration/schema paths](https://github.com/larastan/larastan/pull/2031)
 - [fix: default date casting](https://github.com/larastan/larastan/pull/1842)
-- [fix: make TGet covariant on Attribute stub](https://github.com/larastan/larastan/pull/2014)
 
 ## ✨ Getting Started
 
