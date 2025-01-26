@@ -22,6 +22,7 @@ use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
 use PHPStan\Type\TypeCombinator;
 
+use function array_filter;
 use function count;
 use function in_array;
 
@@ -87,7 +88,7 @@ final class BuilderModelFindExtension implements DynamicMethodReturnTypeExtensio
 
             if ($argType->isIterable()->yes()) {
                 if (in_array(Collection::class, $returnType->getReferencedClasses(), true)) {
-                    $models[] = $this->collectionHelper->determineCollectionClass($modelName);
+                    $models[] = $this->collectionHelper->determineCollectionType($modelName);
                     continue;
                 }
 
@@ -102,6 +103,8 @@ final class BuilderModelFindExtension implements DynamicMethodReturnTypeExtensio
                 );
             }
         }
+
+        $models = array_filter($models);
 
         return count($models) > 0 ? TypeCombinator::union(...$models) : null;
     }
