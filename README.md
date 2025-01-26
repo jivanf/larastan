@@ -26,6 +26,7 @@ This fork is intended to provide the community with immediate access to these en
 
 This fork includes the following changes and enhancements:
 
+- [fix: builder stubs](https://github.com/larastan/larastan/pull/2180)
 - [fix: check for dynamicWhere method existence](https://github.com/larastan/larastan/pull/2175)
 - [fix: macros on Cache facade](https://github.com/larastan/larastan/pull/2143)
 - [fix: model relation properties](https://github.com/larastan/larastan/pull/2138)
@@ -35,6 +36,7 @@ This fork includes the following changes and enhancements:
 - [feat: support multiple database connections](https://github.com/larastan/larastan/pull/1879)
 - [feat: support wildcards in migration/schema paths](https://github.com/larastan/larastan/pull/2031)
 - [fix: default date casting](https://github.com/larastan/larastan/pull/1842)
+<!-- - [fix: make TGet covariant on Attribute stub](https://github.com/larastan/larastan/pull/2014) -->
 
 ## ✨ Getting Started
 
