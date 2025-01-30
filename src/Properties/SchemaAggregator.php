@@ -7,16 +7,17 @@ namespace Larastan\Larastan\Properties;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Larastan\Larastan\Support\ModelHelper;
 use PhpParser;
 use PhpParser\NodeFinder;
-use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Type\ObjectType;
-use ReflectionException;
 
 use function array_key_exists;
 use function array_merge;
+use function assert;
 use function class_basename;
 use function count;
+use function is_a;
 use function is_string;
 use function property_exists;
 use function strtolower;
@@ -25,7 +26,7 @@ use function strtolower;
 final class SchemaAggregator
 {
     /** @param array<string, SchemaTable> $tables */
-    public function __construct(private ReflectionProvider $reflectionProvider, public array $tables = [])
+    public function __construct(private ModelHelper $modelHelper, public array $tables = [])
     {
     }
 
@@ -128,7 +129,8 @@ final class SchemaAggregator
             ! isset($call->args[1])
             || ! $call->getArgs()[1]->value instanceof PhpParser\Node\Expr\Closure
             || count($call->getArgs()[1]->value->params) < 1
-            || ($call->getArgs()[1]->value->params[0]->type instanceof PhpParser\Node\Name
+            || (
+                $call->getArgs()[1]->value->params[0]->type instanceof PhpParser\Node\Name
                 && ! (new ObjectType('Illuminate\Database\Schema\Blueprint'))->isSuperTypeOf(new ObjectType($call->getArgs()[1]->value->params[0]->type->toCodeString()))->yes()
             )
         ) {
@@ -212,6 +214,8 @@ final class SchemaAggregator
                 } else {
                     continue;
                 }
+
+                assert(is_a($modelClass, Model::class, true));
 
                 $columnName = Str::snake(class_basename($modelClass)) . '_id';
                 if ($secondArg instanceof PhpParser\Node\Scalar\String_) {
@@ -381,17 +385,11 @@ final class SchemaAggregator
         $this->tables[$newTableName] = $table;
     }
 
+    /** @param class-string<Model> $modelClass */
     private function getModelReferenceType(string $modelClass): string|null
     {
-        $classReflection = $this->reflectionProvider->getClass($modelClass);
-        try {
-            /** @var Model $modelInstance */
-            $modelInstance = $classReflection->getNativeReflection()->newInstanceWithoutConstructor();
-        } catch (ReflectionException) {
-            return null;
-        }
-
-        $tableName = $modelInstance->getTable();
+        $modelInstance = $this->modelHelper->getModelInstance($modelClass);
+        $tableName     = $modelInstance->getTable();
 
         if (! array_key_exists($tableName, $this->tables)) {
             return null;
