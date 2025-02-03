@@ -26,7 +26,7 @@ This fork is intended to provide the community with immediate access to these en
 
 This fork includes the following changes and enhancements:
 
-- [fix: builder stubs](https://github.com/larastan/larastan/pull/2180)
+- [fix: builder stubs and builder/model forwarding](https://github.com/larastan/larastan/pull/2180)
 - [fix: check for dynamicWhere method existence](https://github.com/larastan/larastan/pull/2175)
 - [fix: macros on Cache facade](https://github.com/larastan/larastan/pull/2143)
 - [fix: model relation properties](https://github.com/larastan/larastan/pull/2138)
