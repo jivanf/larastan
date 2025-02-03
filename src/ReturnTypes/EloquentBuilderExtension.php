@@ -89,7 +89,7 @@ final class EloquentBuilderExtension implements DynamicMethodReturnTypeExtension
 
         return TypeCombinator::union(
             ...collect($classNames)
-                ->map(fn ($className) => $this->collectionHelper->determineCollectionType($className))
+                ->map(fn ($className) => $this->collectionHelper->determineCollectionType($className, $modelType))
                 ->filter()
                 ->all(),
         );
