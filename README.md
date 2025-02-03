@@ -37,7 +37,7 @@ This fork includes the following changes and enhancements:
 - [feat: support multiple database connections](https://github.com/larastan/larastan/pull/1879)
 - [feat: support wildcards in migration/schema paths](https://github.com/larastan/larastan/pull/2031)
 - [fix: default date casting](https://github.com/larastan/larastan/pull/1842)
-<!-- - [fix: make TGet covariant on Attribute stub](https://github.com/larastan/larastan/pull/2014) -->
+- [fix: make TGet covariant on Attribute stub](https://github.com/larastan/larastan/pull/2014)
 
 ## ✨ Getting Started
 

@@ -3,7 +3,7 @@
 namespace Illuminate\Database\Eloquent\Casts;
 
 /**
- * @template TGet
+ * @template-covariant TGet
  * @template TSet
  */
 class Attribute
@@ -11,16 +11,16 @@ class Attribute
     /**
      * The attribute accessor.
      *
-     * @var callable(mixed, array<string, mixed>): TGet
+     * @var (callable(mixed, array<string, mixed>): TGet)|null
      */
-    public $get;
+    public readonly $get;
 
     /**
      * The attribute mutator.
      *
-     * @var callable(TSet, array<string, mixed>): mixed
+     * @var (callable(TSet, array<string, mixed>): mixed)|null
      */
-    public $set;
+    public readonly $set;
 
     /**
      * Create a new attribute accessor / mutator.
