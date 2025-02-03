@@ -98,11 +98,12 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
-          name: baseline-${{ matrix.baseline }}
+          name: "baseline-${{ matrix.baseline }}"
           path: "larastan/e2e/${{ matrix.baseline }}.baseline.neon"
   merge:
     runs-on: ubuntu-latest
     needs: integration-tests
+    if: ${{ always() && needs.integration-tests.result == 'failure' }}
     steps:
       - name: Merge Artifacts
         uses: actions/upload-artifact/merge@v4
