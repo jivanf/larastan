@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Larastan\Larastan\Properties;
 
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Larastan\Larastan\Support\ModelHelper;
 use PhpParser;
@@ -256,7 +255,7 @@ final class SchemaAggregator
                     $columnName = $secondArg->value;
                 }
 
-                /** @var class-string<Model> $modelClass */
+                /** @phpstan-ignore argument.type (not a class string) */
                 $model = $this->modelHelper->getModelInstance($modelClass);
 
                 $type = $this->modelDatabaseHelper->hasModelColumn($model, $model->getKeyName())

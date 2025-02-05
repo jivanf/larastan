@@ -6,8 +6,8 @@ namespace Larastan\Larastan\Types\ModelProperty;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Larastan\Larastan\Support\ModelHelper;
 use Larastan\Larastan\Properties\ModelDatabaseHelper;
+use Larastan\Larastan\Support\ModelHelper;
 use PHPStan\Type\AcceptsResult;
 use PHPStan\Type\CompoundType;
 use PHPStan\Type\Generic\TemplateType;
@@ -36,8 +36,7 @@ class GenericModelPropertyType extends StringType
         private Type $type,
         private ModelDatabaseHelper $modelDatabaseHelper,
         private ModelHelper $modelHelper,
-    )
-    {
+    ) {
         parent::__construct();
     }
 

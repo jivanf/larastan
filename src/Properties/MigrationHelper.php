@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Larastan\Larastan\Properties;
 
-use Larastan\Larastan\Support\ModelHelper;
 use Larastan\Larastan\Internal\FileHelper;
+use Larastan\Larastan\Support\ModelHelper;
 use PHPStan\Parser\Parser;
 use PHPStan\Parser\ParserErrorsException;
 use SplFileInfo;
