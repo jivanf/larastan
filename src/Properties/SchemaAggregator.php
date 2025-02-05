@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Larastan\Larastan\Properties;
 
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Larastan\Larastan\Support\ModelHelper;
 use PhpParser;
 use PhpParser\NodeFinder;
 use PHPStan\Type\ObjectType;
@@ -29,6 +31,7 @@ final class SchemaAggregator
 
     public function __construct(
         private ModelDatabaseHelper $modelDatabaseHelper,
+        private ModelHelper $modelHelper,
     ) {
     }
 
@@ -162,7 +165,8 @@ final class SchemaAggregator
             ! isset($call->args[1])
             || ! $call->getArgs()[1]->value instanceof PhpParser\Node\Expr\Closure
             || count($call->getArgs()[1]->value->params) < 1
-            || ($call->getArgs()[1]->value->params[0]->type instanceof PhpParser\Node\Name
+            || (
+                $call->getArgs()[1]->value->params[0]->type instanceof PhpParser\Node\Name
                 && ! (new ObjectType('Illuminate\Database\Schema\Blueprint'))->isSuperTypeOf(new ObjectType($call->getArgs()[1]->value->params[0]->type->toCodeString()))->yes()
             )
         ) {
@@ -252,11 +256,8 @@ final class SchemaAggregator
                     $columnName = $secondArg->value;
                 }
 
-                $model = $this->modelDatabaseHelper->getModelInstance($modelClass);
-
-                if ($model === null) {
-                    throw new Exception('Model not found: ' . $modelClass);
-                }
+                /** @var class-string<Model> $modelClass */
+                $model = $this->modelHelper->getModelInstance($modelClass);
 
                 $type = $this->modelDatabaseHelper->hasModelColumn($model, $model->getKeyName())
                     ? $this->modelDatabaseHelper->getModelColumn($model, $model->getKeyName())->readableType

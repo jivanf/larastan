@@ -6,12 +6,8 @@ namespace Larastan\Larastan\Properties;
 
 use Illuminate\Database\Eloquent\Model;
 use Larastan\Larastan\Concerns\HasContainer;
-use PHPStan\Reflection\ClassReflection;
-use PHPStan\Reflection\ReflectionProvider;
-use ReflectionException;
 
 use function count;
-use function is_string;
 
 final class ModelDatabaseHelper
 {
@@ -23,7 +19,6 @@ final class ModelDatabaseHelper
     private string $defaultConnection;
 
     public function __construct(
-        private ReflectionProvider $reflectionProvider,
         private SquashedMigrationHelper $squashedMigrationHelper,
         private MigrationHelper $migrationHelper,
     ) {
@@ -96,22 +91,6 @@ final class ModelDatabaseHelper
     public function dropConnection(string $connectionName): void
     {
         unset($this->connections[$connectionName]);
-    }
-
-    public function getModelInstance(ClassReflection|string $class): Model|null
-    {
-        if (is_string($class)) {
-            $class = $this->reflectionProvider->getClass($class);
-        }
-
-        try {
-            /** @var Model $modelInstance */
-            $modelInstance = $class->getNativeReflection()->newInstanceWithoutConstructor();
-        } catch (ReflectionException) {
-            return null;
-        }
-
-        return $modelInstance;
     }
 
     public function ensureInitialized(): void

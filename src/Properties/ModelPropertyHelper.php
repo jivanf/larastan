@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Larastan\Larastan\Reflection\ReflectionHelper;
+use Larastan\Larastan\Support\ModelHelper;
 use PHPStan\PhpDoc\TypeStringResolver;
 use PHPStan\Reflection\ClassReflection;
-use PHPStan\ShouldNotHappenException;
 use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\Generic\GenericObjectType;
 use PHPStan\Type\MixedType;
@@ -29,6 +29,7 @@ class ModelPropertyHelper
         private TypeStringResolver $stringResolver,
         private ModelDatabaseHelper $modelDatabaseHelper,
         private ModelCastHelper $modelCastHelper,
+        private ModelHelper $modelHelper,
     ) {
     }
 
@@ -49,11 +50,7 @@ class ModelPropertyHelper
             return false;
         }
 
-        $modelInstance = $this->modelDatabaseHelper->getModelInstance($classReflection);
-
-        if ($modelInstance === null) {
-            return false;
-        }
+        $modelInstance = $this->modelHelper->getModelInstance($classReflection);
 
         if ($propertyName === $modelInstance->getKeyName()) {
             return true;
@@ -64,11 +61,7 @@ class ModelPropertyHelper
 
     public function getDatabaseProperty(ClassReflection $classReflection, string $propertyName): ModelProperty
     {
-        $modelInstance = $this->modelDatabaseHelper->getModelInstance($classReflection);
-
-        if ($modelInstance === null) {
-            throw new ShouldNotHappenException();
-        }
+        $modelInstance = $this->modelHelper->getModelInstance($classReflection);
 
         if (
             $propertyName === $modelInstance->getKeyName()

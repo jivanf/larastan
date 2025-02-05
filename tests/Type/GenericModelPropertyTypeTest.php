@@ -7,6 +7,7 @@ namespace Tests\Type;
 use App\Account;
 use App\User;
 use Larastan\Larastan\Properties\ModelDatabaseHelper;
+use Larastan\Larastan\Support\ModelHelper;
 use Larastan\Larastan\Types\ModelProperty\GenericModelPropertyType;
 use PHPStan\Testing\PHPStanTestCase;
 use PHPStan\Type\Constant\ConstantStringType;
@@ -188,6 +189,7 @@ class GenericModelPropertyTypeTest extends PHPStanTestCase
         return new GenericModelPropertyType(
             new ObjectType($class),
             self::getContainer()->getByType(ModelDatabaseHelper::class),
+            new ModelHelper(self::createReflectionProvider()),
         );
     }
 }

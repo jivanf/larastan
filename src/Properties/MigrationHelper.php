@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Larastan\Larastan\Properties;
 
+use Larastan\Larastan\Support\ModelHelper;
 use Larastan\Larastan\Internal\FileHelper;
 use PHPStan\Parser\Parser;
 use PHPStan\Parser\ParserErrorsException;
@@ -21,6 +22,7 @@ class MigrationHelper
         private array $databaseMigrationPath,
         private FileHelper $fileHelper,
         private bool $disableMigrationScan,
+        private ModelHelper $modelHelper,
     ) {
     }
 
@@ -34,7 +36,7 @@ class MigrationHelper
             $this->databaseMigrationPath = [database_path('migrations')];
         }
 
-        $schemaAggregator = new SchemaAggregator($modelDatabaseHelper);
+        $schemaAggregator = new SchemaAggregator($modelDatabaseHelper, $this->modelHelper);
         $filesArray       = $this->fileHelper->getFiles($this->databaseMigrationPath, '/\.php$/i');
 
         if (empty($filesArray)) {

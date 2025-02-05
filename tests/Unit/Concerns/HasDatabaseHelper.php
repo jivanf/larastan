@@ -9,6 +9,7 @@ use Larastan\Larastan\Properties\MigrationHelper;
 use Larastan\Larastan\Properties\ModelDatabaseHelper;
 use Larastan\Larastan\Properties\Schema\PhpMyAdminDataTypeToPhpTypeConverter;
 use Larastan\Larastan\Properties\SquashedMigrationHelper;
+use Larastan\Larastan\Support\ModelHelper;
 use PHPStan\File\FileHelper as PHPStanFileHelper;
 use PHPStan\Testing\PHPStanTestCase;
 
@@ -17,11 +18,13 @@ trait HasDatabaseHelper
 {
     private string $defaultConnection;
     private ModelDatabaseHelper $modelDatabaseHelper;
+    private ModelHelper $modelHelper;
 
     public function setUp(): void
     {
+        $this->modelHelper = new ModelHelper($this->createReflectionProvider());
+
         $this->modelDatabaseHelper = new ModelDatabaseHelper(
-            $this->createReflectionProvider(),
             $this->getSquashedMigrationHelper(),
             $this->getMigrationHelper(),
         );
@@ -39,6 +42,7 @@ trait HasDatabaseHelper
                 self::getContainer()->getByType(PHPStanFileHelper::class),
             ),
             $disableScan,
+            $this->modelHelper,
         );
     }
 
