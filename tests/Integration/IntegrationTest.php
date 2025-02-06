@@ -22,7 +22,7 @@ class IntegrationTest extends PHPStanTestCase
         self::getContainer();
 
         yield [__DIR__ . '/data/bug-2074.php'];
-        yield [__DIR__ . '/data/test-case-extension.php', [39 => ['Call to function method_exists() with $this(TestTestCase) and \'partialMock\' will always evaluate to true.']]];
+        yield [__DIR__ . '/data/test-case-extension.php', [34 => ['Call to function method_exists() with $this(TestTestCase) and \'partialMock\' will always evaluate to true.']]];
         yield [__DIR__ . '/data/model-builder.php'];
         yield [__DIR__ . '/data/model-properties.php'];
         yield [__DIR__ . '/data/blade-view.php'];
@@ -117,7 +117,7 @@ class IntegrationTest extends PHPStanTestCase
                 $this->assertNotEmpty($errors);
             }
 
-            $this->assertSameErrorMessages($expectedErrors, $errors);
+            $this->assertSameErrorMessages($file, $expectedErrors, $errors);
         }
     }
 
@@ -151,19 +151,23 @@ class IntegrationTest extends PHPStanTestCase
     }
 
     /**
-     *  @param array<int, array<int, string>> $expectedErrors
-     *  @param Error[]                        $errors
+     * @param array<int, array<int, string>> $expectedErrors
+     * @param Error[]                        $errors
      */
-    private function assertSameErrorMessages(array $expectedErrors, array $errors): void
+    private function assertSameErrorMessages(string $file, array $expectedErrors, array $errors): void
     {
         foreach ($errors as $error) {
             $errorLine = $error->getLine() ?? 0;
 
-            $this->assertArrayHasKey($errorLine, $expectedErrors);
+            $this->assertArrayHasKey(
+                $errorLine,
+                $expectedErrors,
+                sprintf('File %s has unexpected error "%s" at line %d.', $file, $error->getMessage(), $errorLine),
+            );
             $this->assertContains(
                 $error->getMessage(),
                 $expectedErrors[$errorLine],
-                sprintf("Unexpected error \"%s\" at line %d.\n\nExpected \"%s\"", $error->getMessage(), $errorLine, implode("\n\t", $expectedErrors[$errorLine])),
+                sprintf("File %s has unexpected error \"%s\" at line %d.\n\nExpected \"%s\"", $file, $error->getMessage(), $errorLine, implode("\n\t", $expectedErrors[$errorLine])),
             );
         }
     }
