@@ -21,8 +21,11 @@ function dummyFilter($value)
     return random_int(0, 1) > 1;
 }
 
-/** @param EloquentCollection<int, User> $users */
-function test(User $user, SupportCollection $users): void
+/**
+ * @param EloquentCollection<int, User> $users
+ * @param SupportCollection<array-key, mixed> $mixedCollection
+ */
+function test(User $user, SupportCollection $users, SupportCollection $mixedCollection): void
 {
     assertType("Illuminate\Support\Collection<(int|string), mixed~(0|0.0|''|'0'|array{}|false|null)>", collect()->filter());
 
@@ -60,4 +63,6 @@ function test(User $user, SupportCollection $users): void
     ->map(function ($account) {
         assertType('App\Account', $account);
     });
+
+    assertType("Illuminate\Support\Collection<(int|string), mixed~(0|0.0|''|'0'|array{}|false|null)>", $mixedCollection->pluck('foo')->filter());
 }
