@@ -10,8 +10,8 @@ use App\Team;
 use App\User;
 use App\Address;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 use function PHPStan\Testing\assertType;
 
@@ -57,8 +57,12 @@ function test(
         assertType('Illuminate\Database\Eloquent\Builder<App\Account>', $query);
     });
 
-    Post::query()->withWhereHas('users', function (Builder $query) {
-        assertType('Illuminate\Database\Eloquent\Builder<App\User>', $query);
+    User::query()->withWhereHas('accounts.posts', function (Builder|Relation $query) {
+        assertType('App\PostBuilder<App\Post>|Illuminate\Database\Eloquent\Relations\BelongsToMany<App\Post, App\Account>', $query);
+    });
+
+    Post::query()->withWhereHas('users', function (Builder|Relation $query) {
+        assertType('Illuminate\Database\Eloquent\Builder<App\User>|Illuminate\Database\Eloquent\Relations\BelongsToMany<App\User, App\Post>', $query);
     });
 
     User::query()->orWhereHas('accounts', function (Builder $query) {
@@ -81,14 +85,37 @@ function test(
         assertType('Illuminate\Database\Eloquent\Builder<App\Account>', $query);
     });
 
-    /** @var 'accounts'|'address' $relation */
-    $relation = 'address';
+    $relation = random_int(0, 1) ? 'accounts' : 'address';
     User::query()->whereHas($relation, function (Builder $query) {
         assertType('Illuminate\Database\Eloquent\Builder<App\Account|App\Address>', $query);
     });
+    User::query()->withWhereHas($relation, function (Builder|Relation $query) {
+        assertType('Illuminate\Database\Eloquent\Builder<App\Account|App\Address>|Illuminate\Database\Eloquent\Relations\HasMany<App\Account, App\User>|Illuminate\Database\Eloquent\Relations\MorphMany<App\Address, App\User>', $query);
+    });
+
+    $relation = random_int(0, 1) ? 'accounts.posts' : 'address';
+    User::query()->whereHas($relation, function (Builder $query) {
+        assertType('App\PostBuilder<App\Post>|Illuminate\Database\Eloquent\Builder<App\Address>', $query);
+    });
+    User::query()->withWhereHas($relation, function (Builder|Relation $query) {
+        assertType('App\PostBuilder<App\Post>|Illuminate\Database\Eloquent\Builder<App\Address>|Illuminate\Database\Eloquent\Relations\BelongsToMany<App\Post, App\Account>|Illuminate\Database\Eloquent\Relations\MorphMany<App\Address, App\User>', $query);
+    });
+
+    $relation = random_int(0, 1) ? $user->accounts() : $user->address();
+    User::query()->whereHas($relation, function (Builder $query) {
+        assertType('Illuminate\Database\Eloquent\Builder<App\Account|App\Address>', $query);
+    });
+    User::query()->withWhereHas($relation, function (Builder|Relation $query) {
+        assertType('Illuminate\Database\Eloquent\Builder<App\Account|App\Address>|Illuminate\Database\Eloquent\Relations\HasMany<App\Account, App\User>|Illuminate\Database\Eloquent\Relations\MorphMany<App\Address, App\User>', $query);
+    });
+
 
     $user->has($user->accounts(), callback: function ($query) {
         assertType('Illuminate\Database\Eloquent\Builder<App\Account>', $query);
+    });
+
+    $user->withWhereHas($user->accounts(), function (Builder|Relation $query) {
+        assertType('Illuminate\Database\Eloquent\Builder<App\Account>|Illuminate\Database\Eloquent\Relations\HasMany<App\Account, App\User>', $query);
     });
 
     $userOrTeamBuilder->has('address', function ($query) {
@@ -164,13 +191,13 @@ function test(
     ])->get());
 
     assertType('Illuminate\Database\Eloquent\Collection<int, App\User>', User::where('id', 1)->get());
-    assertType('Illuminate\Database\Eloquent\Collection<int, App\User>', (new User)->where('id', 1)->get());
+    assertType('Illuminate\Database\Eloquent\Collection<int, App\User>', (new User())->where('id', 1)->get());
     assertType('Illuminate\Database\Eloquent\Collection<int, App\User>', User::where('id', 1)
         ->whereNotNull('name')
         ->where('email', 'bar')
         ->whereFoo(['bar'])
         ->get());
-    assertType('Illuminate\Database\Eloquent\Collection<int, App\User>', (new User)->whereNotNull('name')
+    assertType('Illuminate\Database\Eloquent\Collection<int, App\User>', (new User())->whereNotNull('name')
         ->where('email', 'bar')
         ->whereFoo(['bar'])
         ->get());
@@ -178,8 +205,8 @@ function test(
         return [$user->name => $user->email];
     }));
 
-    assertType('mixed', (new User)->where('email', 1)->max('email'));
-    assertType('bool', (new User)->where('email', 1)->exists());
+    assertType('mixed', (new User())->where('email', 1)->max('email'));
+    assertType('bool', (new User())->where('email', 1)->exists());
     assertType('Illuminate\Database\Eloquent\Builder<App\User>', User::with('accounts')->whereNull('name'));
     assertType('Illuminate\Database\Eloquent\Builder<App\User>', User::with('accounts')
         ->where('email', 'bar')

@@ -13,7 +13,6 @@ use PhpParser\Node\Expr\StaticCall;
 use PhpParser\Node\Name;
 use PhpParser\Node\VariadicPlaceholder;
 use PHPStan\Analyser\Scope;
-use PHPStan\Reflection\ClassReflection;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Reflection\ParameterReflection;
 use PHPStan\Type\ClosureType;
@@ -24,15 +23,14 @@ use PHPStan\Type\NeverType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
+use PHPStan\Type\TypeCombinator;
 
 use function array_push;
 use function array_shift;
 use function collect;
 use function count;
-use function dd;
 use function explode;
 use function in_array;
-use function is_string;
 
 final class RelationClosureHelper
 {
@@ -81,18 +79,30 @@ final class RelationClosureHelper
         ParameterReflection $parameter,
         Scope $scope,
     ): Type|null {
-        $isMorphMethod = in_array($methodReflection->getName(), $this->morphMethods, strict: true);
+        $method        = $methodReflection->getName();
+        $isMorphMethod = in_array($method, $this->morphMethods, strict: true);
+        $models        = [];
+        $relations     = [];
 
-        $models = $isMorphMethod
-            ? $this->getMorphModels($methodCall, $scope)
-            : $this->getModels($methodCall, $scope);
+        if ($isMorphMethod) {
+            $models = $this->getMorphModels($methodCall, $scope);
+        } else {
+            $relations = $this->getRelationsFromMethodCall($methodCall, $scope);
+            $models    = $this->getModelsFromRelations($relations);
+        }
 
         if (count($models) === 0) {
             return null;
         }
 
+        $type = $this->builderHelper->getBuilderTypeForModels($models);
+
+        if ($method === 'withWhereHas') {
+            $type = TypeCombinator::union($type, ...$relations);
+        }
+
         return new ClosureType([
-            new ClosureQueryParameter('query', $this->builderHelper->getBuilderTypeForModels($models)),
+            new ClosureQueryParameter('query', $type),
             new ClosureQueryParameter('type', $isMorphMethod ? new NeverType() : new StringType()),
         ], new MixedType());
     }
@@ -121,45 +131,30 @@ final class RelationClosureHelper
             ->flatMap(static fn (ConstantArrayType $t) => $t->getValueTypes())
             ->flatMap(static fn (Type $t) => $t->getConstantStrings())
             ->merge($models->getConstantStrings())
-            ->map(static function (ConstantStringType $t) {
-                $value = $t->getValue();
-
-                return $value === '*' ? Model::class : $value;
-            })
+            ->map(static fn (ConstantStringType $t) => $t->getValue())
+            ->map(static fn (string $v) => $v === '*' ? Model::class : $v)
             ->values()
             ->all();
     }
 
-    /** @return array<int, string> */
-    private function getModels(MethodCall|StaticCall $methodCall, Scope $scope): array
+    /**
+     * @param array<int, Type> $relations
+     *
+     * @return array<int, string>
+     */
+    private function getModelsFromRelations(array $relations): array
     {
-        $relations = $this->getRelationsFromMethodCall($methodCall, $scope);
-
-        if (count($relations) === 0) {
-            return [];
-        }
-
-        if ($methodCall instanceof MethodCall) {
-            $calledOnModels = $scope->getType($methodCall->var)
-                ->getTemplateType(EloquentBuilder::class, 'TModel')
-                ->getObjectClassNames();
-        } else {
-            $calledOnModels = $methodCall->class instanceof Name
-                ? [$scope->resolveName($methodCall->class)]
-            : dd($scope->getType($methodCall->class))->getReferencedClasses();
-        }
-
         return collect($relations)
             ->flatMap(
-                fn ($relation) => is_string($relation)
-                    ? $this->getModelsFromStringRelation($calledOnModels, explode('.', $relation), $scope)
-                    : $this->getModelsFromRelationReflection($relation),
+                static fn (Type $relation) => $relation
+                    ->getTemplateType(Relation::class, 'TRelatedModel')
+                    ->getObjectClassNames(),
             )
             ->values()
             ->all();
     }
 
-    /** @return array<int, string|ClassReflection> */
+    /** @return array<int, Type> */
     public function getRelationsFromMethodCall(MethodCall|StaticCall $methodCall, Scope $scope): array
     {
         $relationType = null;
@@ -179,18 +174,21 @@ final class RelationClosureHelper
             return [];
         }
 
-        return collect([
-            ...$relationType->getConstantStrings(),
-            ...$relationType->getObjectClassReflections(),
-        ])
-            ->map(static function ($type) {
-                if ($type instanceof ClassReflection) {
-                    return $type->is(Relation::class) ? $type : null;
-                }
+        if ($methodCall instanceof MethodCall) {
+            $calledOnModels = $scope->getType($methodCall->var)
+                ->getTemplateType(EloquentBuilder::class, 'TModel')
+                ->getObjectClassNames();
+        } else {
+            $calledOnModels = $methodCall->class instanceof Name
+                ? [$scope->resolveName($methodCall->class)]
+                : $scope->getType($methodCall->class)->getReferencedClasses();
+        }
 
-                return $type->getValue();
-            })
-            ->filter()
+        return collect($relationType->getConstantStrings())
+            ->map(static fn ($type) => $type->getValue())
+            ->flatMap(fn ($relation) => $this->getRelationTypeFromString($calledOnModels, explode('.', $relation), $scope))
+            ->merge([$relationType])
+            ->filter(static fn ($r) => (new ObjectType(Relation::class))->isSuperTypeOf($r)->yes())
             ->values()
             ->all();
     }
@@ -199,51 +197,40 @@ final class RelationClosureHelper
      * @param list<string> $calledOnModels
      * @param list<string> $relationParts
      *
-     * @return list<string>
+     * @return list<Type>
      */
-    public function getModelsFromStringRelation(
+    public function getRelationTypeFromString(
         array $calledOnModels,
         array $relationParts,
         Scope $scope,
     ): array {
-        $relationName = array_shift($relationParts);
+        $relations = [];
 
-        if ($relationName === null) {
-            return $calledOnModels;
-        }
+        while ($relationName = array_shift($relationParts)) {
+            $relations     = [];
+            $relatedModels = [];
 
-        $models = [];
+            foreach ($calledOnModels as $model) {
+                $modelType = new ObjectType($model);
 
-        foreach ($calledOnModels as $model) {
-            $modelType = new ObjectType($model);
-            if (! $modelType->hasMethod($relationName)->yes()) {
-                continue;
+                if (! $modelType->hasMethod($relationName)->yes()) {
+                    continue;
+                }
+
+                $relationType = $modelType->getMethod($relationName, $scope)->getVariants()[0]->getReturnType();
+
+                if (! (new ObjectType(Relation::class))->isSuperTypeOf($relationType)->yes()) {
+                    continue;
+                }
+
+                $relations[] = $relationType;
+
+                array_push($relatedModels, ...$relationType->getTemplateType(Relation::class, 'TRelatedModel')->getObjectClassNames());
             }
 
-            $relationMethod = $modelType->getMethod($relationName, $scope);
-            $relationType   = $relationMethod->getVariants()[0]->getReturnType();
-
-            if (! (new ObjectType(Relation::class))->isSuperTypeOf($relationType)->yes()) {
-                continue;
-            }
-
-            $relatedModels = $relationType->getTemplateType(Relation::class, 'TRelatedModel')->getObjectClassNames();
-
-            array_push($models, ...$this->getModelsFromStringRelation($relatedModels, $relationParts, $scope));
+            $calledOnModels = $relatedModels;
         }
 
-        return $models;
-    }
-
-    /** @return list<string> */
-    public function getModelsFromRelationReflection(ClassReflection $relation): array
-    {
-        $relatedModel = $relation->getActiveTemplateTypeMap()->getType('TRelatedModel');
-
-        if ($relatedModel === null) {
-            return [];
-        }
-
-        return $relatedModel->getObjectClassNames();
+        return $relations;
     }
 }

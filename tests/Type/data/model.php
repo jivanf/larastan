@@ -222,8 +222,8 @@ function test(
         assertType('Illuminate\Database\Eloquent\Builder<App\Account>', $query);
     });
 
-    Post::withWhereHas('users', function (Builder $query) {
-        assertType('Illuminate\Database\Eloquent\Builder<App\User>', $query);
+    Post::withWhereHas('users', function (Builder|Relation $query) {
+        assertType('Illuminate\Database\Eloquent\Builder<App\User>|Illuminate\Database\Eloquent\Relations\BelongsToMany<App\User, App\Post>', $query);
     });
 
     User::orWhereHas('accounts', function (Builder $query) {
@@ -246,10 +246,28 @@ function test(
         assertType('Illuminate\Database\Eloquent\Builder<App\Account>', $query);
     });
 
-    /** @var 'accounts'|'address' $relation */
-    $relation = 'address';
+    $relation = random_int(0, 1) ? 'accounts' : 'address';
     User::whereHas($relation, function (Builder $query) {
         assertType('Illuminate\Database\Eloquent\Builder<App\Account|App\Address>', $query);
+    });
+    User::withWhereHas($relation, function (Builder|Relation $query) {
+        assertType('Illuminate\Database\Eloquent\Builder<App\Account|App\Address>|Illuminate\Database\Eloquent\Relations\HasMany<App\Account, App\User>|Illuminate\Database\Eloquent\Relations\MorphMany<App\Address, App\User>', $query);
+    });
+
+    $relation = random_int(0, 1) ? 'accounts.posts' : 'address';
+    User::whereHas($relation, function (Builder $query) {
+        assertType('App\PostBuilder<App\Post>|Illuminate\Database\Eloquent\Builder<App\Address>', $query);
+    });
+    User::withWhereHas($relation, function (Builder|Relation $query) {
+        assertType('App\PostBuilder<App\Post>|Illuminate\Database\Eloquent\Builder<App\Address>|Illuminate\Database\Eloquent\Relations\BelongsToMany<App\Post, App\Account>|Illuminate\Database\Eloquent\Relations\MorphMany<App\Address, App\User>', $query);
+    });
+
+    $relation = random_int(0, 1) ? $user->accounts() : $user->address();
+    User::whereHas($relation, function (Builder $query) {
+        assertType('Illuminate\Database\Eloquent\Builder<App\Account|App\Address>', $query);
+    });
+    User::withWhereHas($relation, function (Builder|Relation $query) {
+        assertType('Illuminate\Database\Eloquent\Builder<App\Account|App\Address>|Illuminate\Database\Eloquent\Relations\HasMany<App\Account, App\User>|Illuminate\Database\Eloquent\Relations\MorphMany<App\Address, App\User>', $query);
     });
 
     // currently a bug in PHPStan: https://github.com/phpstan/phpstan/issues/11742
