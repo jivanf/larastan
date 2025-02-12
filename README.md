@@ -20,6 +20,7 @@ Hello! 👋
 This is my fork of [larastan/larastan][larastan], which includes additional features and improvements that have been proposed but are not yet available in the upstream package.
 This fork is intended to provide the community with immediate access to these enhancements while maintaining compatibility with the upstream package.
 
+> [!TIP]
 > For [Laravel Livewire][livewire] support, check out [larastan-livewire][larastan-livewire]!
 
 ## 🔄 Changes and Upstream PRs
