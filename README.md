@@ -28,6 +28,7 @@ This fork is intended to provide the community with immediate access to these en
 This fork includes the following changes and enhancements:
 
 - [deps: support Laravel 12](https://github.com/larastan/larastan/pull/2195)
+- [fix: paginator stubs](https://github.com/larastan/larastan/pull/2208)
 - [fix: property type for uuid and ulid primary keys](https://github.com/larastan/larastan/pull/2197)
 - [fix: collection template types being overwritten](https://github.com/larastan/larastan/pull/2193)
 - [fix: builder stubs and builder/model forwarding](https://github.com/larastan/larastan/pull/2180)
