@@ -19,6 +19,7 @@ use PHPStan\Type\ClosureType;
 use PHPStan\Type\Constant\ConstantArrayType;
 use PHPStan\Type\Constant\ConstantStringType;
 use PHPStan\Type\MixedType;
+use PHPStan\Type\NeverType;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\StringType;
 use PHPStan\Type\Type;
@@ -102,7 +103,7 @@ final class RelationClosureHelper
 
         return new ClosureType([
             new ClosureQueryParameter('query', $type),
-            new ClosureQueryParameter('type', $isMorphMethod ? new StringType() : new MixedType()),
+            new ClosureQueryParameter('type', $isMorphMethod ? new StringType() : new NeverType()),
         ], new MixedType());
     }
 
