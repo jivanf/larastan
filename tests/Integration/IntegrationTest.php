@@ -25,6 +25,7 @@ class IntegrationTest extends PHPStanTestCase
         yield [__DIR__ . '/data/test-case-extension.php', [34 => ['Call to function method_exists() with $this(TestTestCase) and \'partialMock\' will always evaluate to true.']]];
         yield [__DIR__ . '/data/model-builder.php'];
         yield [__DIR__ . '/data/model-properties.php'];
+        yield [__DIR__ . '/data/model-factories.php'];
         yield [__DIR__ . '/data/blade-view.php'];
         yield [__DIR__ . '/data/helpers.php'];
 
@@ -65,7 +66,7 @@ class IntegrationTest extends PHPStanTestCase
         yield [
             __DIR__ . '/data/model-property-model-factory.php',
             [
-                7 => ['Parameter #1 $attributes of method Illuminate\Database\Eloquent\Factories\Factory<App\User>::createOne() expects array<model property of App\User, mixed>, array<string, string> given.'],
+                7 => ['Parameter #1 $attributes of method Illuminate\Database\Eloquent\Factories\Factory<App\User>::createOne() expects array<model property of App\User, mixed>|(callable(array<string, mixed>): array<string, mixed>), array{foo: \'bar\'} given.'],
             ],
         ];
 
