@@ -70,9 +70,5 @@ jobs:
       - name: "Run Larastan on a sample Laravel application"
         run: |
           version="${{ matrix.laravel }}"
-          if [[ "$version" == "^12.0" ]]; then
-            version="12.x-dev"
-          else
-            version="${version%%.*}.0"
-          fi
+          version="${version%%.*}.0"
           tests/laravel-test.sh "$version"
