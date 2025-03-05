@@ -42,6 +42,9 @@
         "phpstan/phpstan-deprecation-rules": "^2.0.0",
         "phpunit/phpunit": "^10.5.35 || ^11.3.6"
     },
+    "replace": {
+        "larastan/larastan": "self.version"
+    },
     "suggest": {
         "orchestra/testbench": "Using Larastan for analysing a package needs Testbench"
     },
