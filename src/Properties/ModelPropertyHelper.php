@@ -38,7 +38,7 @@ class ModelPropertyHelper
      */
     public function hasDatabaseProperty(ClassReflection $classReflection, string $propertyName): bool
     {
-        if (! $classReflection->isSubclassOf(Model::class)) {
+        if (! $classReflection->is(Model::class)) {
             return false;
         }
 
@@ -121,7 +121,7 @@ class ModelPropertyHelper
      */
     public function hasAccessor(ClassReflection $classReflection, string $propertyName, bool $strictGenerics = true): bool
     {
-        if (! $classReflection->isSubclassOf(Model::class)) {
+        if (! $classReflection->is(Model::class)) {
             return false;
         }
 
