@@ -27,6 +27,7 @@ This fork is intended to provide the community with immediate access to these en
 
 This fork includes the following changes and enhancements:
 
+- [feat: support BelongsToMany pivot property](https://github.com/larastan/larastan/pull/2231)
 - [fix: paginator stubs](https://github.com/larastan/larastan/pull/2208)
 - [fix: property type for uuid and ulid primary keys](https://github.com/larastan/larastan/pull/2197)
 - [fix: collection template types being overwritten](https://github.com/larastan/larastan/pull/2193)
