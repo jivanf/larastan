@@ -58,11 +58,11 @@ function test(
     });
 
     User::query()->withWhereHas('accounts.posts', function (Builder|Relation $query) {
-        assertType('App\PostBuilder<App\Post>|Illuminate\Database\Eloquent\Relations\BelongsToMany<App\Post, App\Account>', $query);
+        assertType('App\PostBuilder<App\Post>|Illuminate\Database\Eloquent\Relations\BelongsToMany<App\Post, App\Account, Illuminate\Database\Eloquent\Relations\Pivot, \'pivot\'>', $query);
     });
 
     Post::query()->withWhereHas('users', function (Builder|Relation $query) {
-        assertType('Illuminate\Database\Eloquent\Builder<App\User>|Illuminate\Database\Eloquent\Relations\BelongsToMany<App\User, App\Post>', $query);
+        assertType('Illuminate\Database\Eloquent\Builder<App\User>|Illuminate\Database\Eloquent\Relations\BelongsToMany<App\User, App\Post, Illuminate\Database\Eloquent\Relations\Pivot, \'pivot\'>', $query);
     });
 
     User::query()->orWhereHas('accounts', function (Builder $query) {
@@ -98,7 +98,7 @@ function test(
         assertType('App\PostBuilder<App\Post>|Illuminate\Database\Eloquent\Builder<App\Address>', $query);
     });
     User::query()->withWhereHas($relation, function (Builder|Relation $query) {
-        assertType('App\PostBuilder<App\Post>|Illuminate\Database\Eloquent\Builder<App\Address>|Illuminate\Database\Eloquent\Relations\BelongsToMany<App\Post, App\Account>|Illuminate\Database\Eloquent\Relations\MorphMany<App\Address, App\User>', $query);
+        assertType('App\PostBuilder<App\Post>|Illuminate\Database\Eloquent\Builder<App\Address>|Illuminate\Database\Eloquent\Relations\BelongsToMany<App\Post, App\Account, Illuminate\Database\Eloquent\Relations\Pivot, \'pivot\'>|Illuminate\Database\Eloquent\Relations\MorphMany<App\Address, App\User>', $query);
     });
 
     $relation = random_int(0, 1) ? $user->accounts() : $user->address();
