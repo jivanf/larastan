@@ -86,6 +86,7 @@ class GeneralTypeTest extends TypeInferenceTestCase
 
         if (laravel_version_compare('12.0.0', '>=')) {
             yield from self::gatherAssertTypes(__DIR__ . '/data/collection-generic-static-methods-l12.php');
+            yield from self::gatherAssertTypes(__DIR__ . '/data/model-scope-attribute-l12.php');
         }
 
         //##############################################################################################################
