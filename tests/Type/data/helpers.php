@@ -184,6 +184,9 @@ function test(?int $value = 0): void
     assertType("object{0: 'bar', 1: 'foo'}&stdClass", literal('bar', 'foo'));
     assertType("object{0: 4, bar: 'foo'}&stdClass", literal(4, bar:'foo'));
     assertType("App\User", literal(new User()));
+    assertType("array{foo: 22, bar: 'bar'}", literal(['foo' => 22, 'bar' => "bar"]));
+    assertType("object{0: 5, 1: 7}&stdClass", literal(...[5,7]));
+    assertType("object{foo: 22, bar: 'bar'}&stdClass", literal(...['foo' => 22, 'bar' => "bar"]));
 
     assertType('Illuminate\Config\Repository', config());
     assertType('null', config(['auth.defaults' => 'bar']));
@@ -202,3 +205,12 @@ function test(?int $value = 0): void
     assertType('mixed', config('nonexistent'));
     assertType('mixed', config('auth.null'));
 }
+
+/**
+ * @param array{loo:'loo'}|array{foo:'foo',bar:'baa'} $parameter
+ */
+function testUnion($parameter): int {
+    assertType("(object{foo: 'foo', bar: 'baa'}&stdClass)|(object{loo: 'loo'}&stdClass)", literal(...$parameter));
+
+    return 0;
+};
