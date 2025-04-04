@@ -27,11 +27,9 @@ This fork is intended to provide the community with immediate access to these en
 
 This fork includes the following changes and enhancements:
 
-- [feat: support Scope attribute in Laravel 12.4](https://github.com/larastan/larastan/pull/2244)
-- [feat: support BelongsToMany pivot property](https://github.com/larastan/larastan/pull/2231)
-- [fix: paginator stubs](https://github.com/larastan/larastan/pull/2208)
+- [fix: factory {has,for}* methods should return static](https://github.com/larastan/larastan/pull/2252)
 - [fix: property type for uuid and ulid primary keys](https://github.com/larastan/larastan/pull/2197)
-- [fix: collection template types being overwritten](https://github.com/larastan/larastan/pull/2193)
+- [fix: collection template types being overwritten](https://github.com/larastan/larastan/pull/2249)
 - [fix: builder stubs and builder/model forwarding](https://github.com/larastan/larastan/pull/2180)
 - [fix: handle collection intersection types](https://github.com/larastan/larastan/pull/2058)
 - [feat: support dynamic relation closures](https://github.com/larastan/larastan/pull/2048)
