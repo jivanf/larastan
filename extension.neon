@@ -598,6 +598,10 @@ services:
     -
         class: Larastan\Larastan\Support\ConfigHelper
 
+    -
+        class: Larastan\Larastan\ReturnTypes\FormRequestSafeDynamicMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
 rules:
     - Larastan\Larastan\Rules\UselessConstructs\NoUselessWithFunctionCallsRule
     - Larastan\Larastan\Rules\UselessConstructs\NoUselessValueFunctionCallsRule
