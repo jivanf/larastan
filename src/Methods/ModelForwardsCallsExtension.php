@@ -78,7 +78,7 @@ final class ModelForwardsCallsExtension implements MethodsClassReflectionExtensi
             return $this->counterMethodReflection($classReflection, $methodName);
         }
 
-        $builderType       = $this->builderHelper->getBuilderTypeForModels($classReflection->getName());
+        $builderType       = $this->builderHelper->getBuilderTypeForModels(new StaticType($classReflection));
         $builderReflection = $builderType->getClassReflection();
 
         if ($builderReflection === null) {
@@ -153,7 +153,7 @@ final class ModelForwardsCallsExtension implements MethodsClassReflectionExtensi
     private function transformStaticType(Type $type, ObjectType $builder): Type
     {
         return TypeTraverser::map($type, static function (Type $type, callable $traverse) use ($builder): Type {
-            if ($type instanceof StaticType) {
+            if ($type instanceof StaticType && (new ObjectType(Builder::class))->isSuperTypeOf($type)->yes()) {
                 return $builder;
             }
 
