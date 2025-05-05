@@ -1,5 +1,5 @@
 {
-    "name": "calebdw/larastan",
+    "name": "jivanf/larastan",
     "type": "phpstan-extension",
     "description": "Larastan - Discover bugs in your code without running it. A phpstan/phpstan extension for Laravel",
     "homepage": "https://github.com/calebdw/larastan",
