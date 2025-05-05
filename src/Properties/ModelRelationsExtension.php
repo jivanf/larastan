@@ -85,7 +85,7 @@ final class ModelRelationsExtension implements PropertiesClassReflectionExtensio
                 return $type;
             }
 
-            return $type->getTemplateType(Relation::class, 'TResult');
+            return $type->getTemplateType(Relation::class, 'TRelatedModel');
         });
 
         $relationType = $this->collectionHelper->replaceCollectionsInType($relationType);
